@@ -8,7 +8,7 @@ AppConfig config;
 try
 {
 #if DEBUG
-    configPath = "D:\\git\\EasySwitcher\\EasySwitcher\\bin\\Debug\\net10.0\\config.toml";
+    configPath = Directory.GetCurrentDirectory() + "\\bin\\Debug\\net10.0\\config.toml";
 #endif
 
 
