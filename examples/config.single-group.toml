@@ -2,19 +2,19 @@
 listen = "http://0.0.0.0:7085"
 auth_key = "change-me"
 default_group = "default"
-strategy = "round_robin"
+strategy = "weighted"
 timeout_seconds = 600
-max_failover = 2
+max_failover = 1
 max_request_body_bytes = 10485760
 
 [groups.default]
-strategy = "round_robin"
-max_failover = 2
+strategy = "weighted"
+max_failover = 1
 timeout_seconds = 600
 
 [[platforms]]
 name = "88code"
-base_url = "https://api.cubence.com/v1"
+base_url = "https://www.88code.ai/openai/v1"
 api_key = ""
 group = "default"
 weight = 1
