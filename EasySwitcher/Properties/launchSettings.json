@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "EasySwitcher": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:50145;http://localhost:50146"
+    }
+  }
+}
