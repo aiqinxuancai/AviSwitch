@@ -97,7 +97,7 @@ EASYSWITCHER_CONFIG=/path/to/config.toml
 策略说明：
 
 - `weighted`: 加权轮询（按权重分配请求）
-- `failover`: 主备机制（优先级最小为主，主可用时只走主）
+- `failover`: 主备机制（同优先级按权重轮询，优先级更高的节点不可用时才切换）
 
 ## Docker
 

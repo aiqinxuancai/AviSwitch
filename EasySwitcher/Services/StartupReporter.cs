@@ -14,6 +14,7 @@ public static class StartupReporter
         table.AddColumn("分组");
         table.AddColumn("优先级");
         table.AddColumn("权重");
+        table.AddColumn("启用");
         table.AddColumn("上游地址");
 
         foreach (var platform in config.Platforms)
@@ -23,6 +24,7 @@ public static class StartupReporter
                 Markup.Escape(platform.Group),
                 platform.Priority.ToString(),
                 platform.Weight.ToString(),
+                platform.Enabled ? "是" : "否",
                 Markup.Escape(platform.BaseUrl));
         }
 

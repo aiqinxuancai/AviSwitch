@@ -9,6 +9,7 @@ public sealed class LoadBalancer
     private readonly PlatformRegistry _registry;
     private readonly HealthTracker _health;
     private readonly ConcurrentDictionary<string, WeightedRoundRobinState> _weightedStates = new(StringComparer.OrdinalIgnoreCase);
+    private readonly ConcurrentDictionary<string, WeightedRoundRobinState> _failoverStates = new(StringComparer.OrdinalIgnoreCase);
 
     public LoadBalancer(PlatformRegistry registry, HealthTracker health)
     {
@@ -33,7 +34,7 @@ public sealed class LoadBalancer
         var strategy = (groupConfig?.Strategy ?? config.Server.Strategy).Trim().ToLowerInvariant();
         return strategy switch
         {
-            "failover" => OrderByPriority(healthy),
+            "failover" => FailoverOrder(healthy, group),
             "weighted" => WeightedRoundRobin(healthy, group),
             _ => WeightedRoundRobin(healthy, group),
         };
@@ -46,8 +47,7 @@ public sealed class LoadBalancer
             return platforms;
         }
 
-        var state = _weightedStates.GetOrAdd(group, _ => new WeightedRoundRobinState());
-        var selected = state.Select(platforms);
+        var selected = SelectWeightedPrimary(_weightedStates, group, platforms);
 
         var ordered = new List<PlatformState>(platforms.Count) { selected };
         ordered.AddRange(platforms.Where(p => p != selected)
@@ -56,9 +56,44 @@ public sealed class LoadBalancer
         return ordered;
     }
 
-    private static IReadOnlyList<PlatformState> OrderByPriority(List<PlatformState> platforms)
+    private IReadOnlyList<PlatformState> FailoverOrder(List<PlatformState> platforms, string group)
     {
-        return platforms.OrderBy(p => p.Config.Priority).ThenByDescending(p => p.Config.Weight).ToList();
+        var ordered = new List<PlatformState>(platforms.Count);
+        var priorityGroups = platforms
+            .GroupBy(p => p.Config.Priority)
+            .OrderBy(g => g.Key)
+            .ToList();
+
+        if (priorityGroups.Count == 0)
+        {
+            return ordered;
+        }
+
+        var primaryGroup = priorityGroups[0].ToList();
+        var primaryKey = $"failover:{group}:{priorityGroups[0].Key}";
+        var primary = SelectWeightedPrimary(_failoverStates, primaryKey, primaryGroup);
+        ordered.Add(primary);
+        ordered.AddRange(primaryGroup.Where(p => p != primary)
+            .OrderByDescending(p => p.Config.Weight)
+            .ThenBy(p => p.Config.Name, StringComparer.OrdinalIgnoreCase));
+
+        foreach (var groupItem in priorityGroups.Skip(1))
+        {
+            ordered.AddRange(groupItem
+                .OrderByDescending(p => p.Config.Weight)
+                .ThenBy(p => p.Config.Name, StringComparer.OrdinalIgnoreCase));
+        }
+
+        return ordered;
+    }
+
+    private static PlatformState SelectWeightedPrimary(
+        ConcurrentDictionary<string, WeightedRoundRobinState> stateStore,
+        string key,
+        IReadOnlyList<PlatformState> platforms)
+    {
+        var state = stateStore.GetOrAdd(key, _ => new WeightedRoundRobinState());
+        return state.Select(platforms);
     }
 
     private sealed class WeightedRoundRobinState
