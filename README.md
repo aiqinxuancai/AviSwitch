@@ -9,7 +9,7 @@ AviSwitch 是一个轻量的 API 转发与负载均衡服务，支持加权轮�
 
 ## 功能特性
 
-- 负载均衡策略：`weighted`、`failover`
+- 负载均衡策略：`weighted(加权轮询)`、`failover(主备机制)`  
 - 支持分组配置与覆盖策略（超时、熔断阈值等）
 - 健康检测与冷却时间，HTTP错误触发熔断，连续触发时冷却倍增
 - 流式转发（响应实时透传）
@@ -80,7 +80,7 @@ wire_api = "responses"
 requires_openai_auth = true
 ```
 
-## 分组路由
+**分组路由**
 
 通过路径前缀指定分组，格式为：
 
@@ -88,7 +88,7 @@ requires_openai_auth = true
 http://<host>/{GROUP}/
 ```
 
-当 `{GROUP}` 与已配置分组名称匹配时，将使用该分组，并在转发到上游时移除该路径段。
+通常无需分组，具如何分组请看最下面的多组配置，当 `{GROUP}` 与已配置分组名称匹配时，将使用该分组，并在转发到上游时移除该路径段。
 
 ## 配置参考
 
@@ -125,6 +125,48 @@ http://<host>/{GROUP}/
 - `failover`: 主备机制（同优先级按权重轮询，优先级更高的节点不可用时才切换）
 
 ## 示例配置
+
+**建议直接拿例子改，就复制复制，然后改改base_url和key以及name就够了**
+
+### 单分组（主备模式）
+
+例子里88code为主，鹅cubence为备用，在88code炸了后使用鹅cubence，如果88code恢复后自动切回，你也可以多个备用。
+
+```toml
+[server]
+listen = "http://0.0.0.0:7085"
+auth_key = "change-me"
+default_group = "default"
+
+[groups.default]
+strategy = "failover"
+max_failover = 2
+timeout_seconds = 600
+
+[[platforms]]
+name = "88code"
+base_url = "https://www.88code.ai/openai/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 0
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "鹅cubence"
+base_url = "https://api.cubence.com/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 1
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+```
+
 
 ### 单分组（加权轮询）
 
@@ -179,53 +221,6 @@ api_key = ""
 group = "default"
 weight = 1
 priority = 1
-key_header = "Authorization"
-key_prefix = "Bearer "
-enabled = true
-```
-
-### 单分组（主备模式）
-
-```toml
-[server]
-listen = "http://0.0.0.0:7085"
-auth_key = "change-me"
-default_group = "default"
-
-[groups.default]
-strategy = "failover"
-max_failover = 2
-timeout_seconds = 600
-
-[[platforms]]
-name = "88code"
-base_url = "https://www.88code.ai/openai/v1"
-api_key = ""
-group = "default"
-weight = 1
-priority = 0
-key_header = "Authorization"
-key_prefix = "Bearer "
-enabled = true
-
-[[platforms]]
-name = "鹅cubence"
-base_url = "https://api.cubence.com/v1"
-api_key = ""
-group = "default"
-weight = 1
-priority = 1
-key_header = "Authorization"
-key_prefix = "Bearer "
-enabled = true
-
-[[platforms]]
-name = "Privnode"
-base_url = "https://privnode.com/v1"
-api_key = ""
-group = "default"
-weight = 1
-priority = 2
 key_header = "Authorization"
 key_prefix = "Bearer "
 enabled = true
