@@ -126,6 +126,46 @@ http://<host>/{GROUP}/
 
 ## 示例配置
 
+### 单分组（主备模式）
+
+例子里88code为主，鹅cubence为备用，在88code炸了后使用鹅cubence，如果88code恢复后自动切回，你也可以多个备用。
+
+```toml
+[server]
+listen = "http://0.0.0.0:7085"
+auth_key = "change-me"
+default_group = "default"
+
+[groups.default]
+strategy = "failover"
+max_failover = 2
+timeout_seconds = 600
+
+[[platforms]]
+name = "88code"
+base_url = "https://www.88code.ai/openai/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 0
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "鹅cubence"
+base_url = "https://api.cubence.com/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 1
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+```
+
+
 ### 单分组（加权轮询）
 
 ```toml
@@ -179,53 +219,6 @@ api_key = ""
 group = "default"
 weight = 1
 priority = 1
-key_header = "Authorization"
-key_prefix = "Bearer "
-enabled = true
-```
-
-### 单分组（主备模式）
-
-```toml
-[server]
-listen = "http://0.0.0.0:7085"
-auth_key = "change-me"
-default_group = "default"
-
-[groups.default]
-strategy = "failover"
-max_failover = 2
-timeout_seconds = 600
-
-[[platforms]]
-name = "88code"
-base_url = "https://www.88code.ai/openai/v1"
-api_key = ""
-group = "default"
-weight = 1
-priority = 0
-key_header = "Authorization"
-key_prefix = "Bearer "
-enabled = true
-
-[[platforms]]
-name = "鹅cubence"
-base_url = "https://api.cubence.com/v1"
-api_key = ""
-group = "default"
-weight = 1
-priority = 1
-key_header = "Authorization"
-key_prefix = "Bearer "
-enabled = true
-
-[[platforms]]
-name = "Privnode"
-base_url = "https://privnode.com/v1"
-api_key = ""
-group = "default"
-weight = 1
-priority = 2
 key_header = "Authorization"
 key_prefix = "Bearer "
 enabled = true
