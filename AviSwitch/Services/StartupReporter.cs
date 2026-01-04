@@ -31,13 +31,13 @@ public static class StartupReporter
         AnsiConsole.Write(table);
         AnsiConsole.MarkupLine($"[grey]监听地址:[/] {Markup.Escape(config.Server.Listen)}");
         AnsiConsole.MarkupLine($"[grey]默认分组:[/] {Markup.Escape(config.Server.DefaultGroup)}");
-        AnsiConsole.MarkupLine($"[grey]默认策略:[/] {Markup.Escape(FormatStrategy(config.Server.Strategy))}  [grey]默认超时:[/] {config.Server.TimeoutSeconds}s  [grey]最大尝试:[/] {config.Server.MaxFailover}");
-        AnsiConsole.MarkupLine($"[grey]熔断阈值:[/] {config.Health.FailureThreshold}  [grey]基础冷却:[/] {config.Health.CooldownSeconds}s");
+        AnsiConsole.MarkupLine($"[grey]默认策略:[/] {Markup.Escape(FormatStrategy(config.Server.Strategy))}  [grey]默认超时:[/] {config.Server.TimeoutSeconds}s  [grey]熔断阈值:[/] {config.Server.MaxFailover}");
+        AnsiConsole.MarkupLine($"[grey]基础冷却:[/] {config.Health.CooldownSeconds}s");
 
         var groupTable = new Table();
         groupTable.AddColumn("分组");
         groupTable.AddColumn("策略");
-        groupTable.AddColumn("最大尝试");
+        groupTable.AddColumn("熔断阈值");
         groupTable.AddColumn("超时(秒)");
         groupTable.AddColumn("平台数");
 

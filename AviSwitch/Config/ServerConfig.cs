@@ -23,7 +23,7 @@ public sealed class ServerConfig
     /// </summary>
     public int TimeoutSeconds { get; set; } = 600;
     /// <summary>
-    /// 单次请求最大尝试次数（含首次）。
+    /// 触发熔断冷却的连续失败次数。
     /// </summary>
     public int MaxFailover { get; set; } = 2;
     /// <summary>

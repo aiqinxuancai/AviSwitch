@@ -5,7 +5,7 @@ AviSwitch 是一个轻量的 API 转发与负载均衡服务，支持加权轮�
 ## 功能特性
 
 - 负载均衡策略：`weighted`、`failover`
-- 支持分组配置与覆盖策略（超时、故障转移次数等）
+- 支持分组配置与覆盖策略（超时、熔断阈值等）
 - 健康检测与冷却时间，HTTP错误触发熔断，连续触发时冷却倍增
 - 流式转发（响应实时透传）
 - 控制台日志包含时间、分组、平台、状态码、耗时等
@@ -13,7 +13,7 @@ AviSwitch 是一个轻量的 API 转发与负载均衡服务，支持加权轮�
 
 ## 快速开始
 
-1. 修改 `config.toml`（参考 `examples/` 里的示例）。
+1. 修改 `config.toml`（参考下方示例）。
 2. 本地运行：
 
 ```bash
@@ -73,12 +73,13 @@ http://<host>/{GROUP}/v1/...
 - `server.default_group`: 默认分组
 - `server.strategy`: 默认负载均衡策略（weighted 或 failover）
 - `server.timeout_seconds`: 上游请求超时（秒），默认 600
-- `server.max_failover`: 最大尝试次数（包含首次）
+- `server.max_failover`: 触发熔断冷却的连续失败次数
 - `server.max_request_body_bytes`: 可重试请求体的最大缓冲大小
-- `health.failure_threshold`: 400+ 错误或请求异常/超时次数达到后标记为不健康
 - `health.cooldown_seconds`: 冷却时间（秒，基础冷却，连续熔断按倍数增加）
-- `groups.<name>`: 分组覆盖配置（策略/重试次数/超时）
+- `groups.<name>`: 分组覆盖配置（策略/熔断阈值/超时）
 - `[[platforms]]`: 上游平台列表
+
+重试说明：当请求体可重试时，失败会按负载均衡顺序依次切换到后续候选节点，直到候选耗尽。
 
 平台字段：
 
@@ -99,6 +100,156 @@ http://<host>/{GROUP}/v1/...
 
 ## 示例配置
 
-- `examples/config.single-group.toml`: 单分组 + 加权轮询
-- `examples/config.multi-group.toml`: 多分组 + 不同策略
+### 单分组（加权轮询）
+
+```toml
+[server]
+listen = "http://0.0.0.0:7085"
+auth_key = "change-me"
+default_group = "default"
+
+[groups.default]
+strategy = "weighted"
+max_failover = 1
+timeout_seconds = 600
+
+[[platforms]]
+name = "88code"
+base_url = "https://www.88code.ai/openai/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 0
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "鹅cubence"
+base_url = "https://api.cubence.com/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 0
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "Privnode"
+base_url = "https://privnode.com/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 1
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = false
+
+[[platforms]]
+name = "鸭Duckcoding"
+base_url = "https://jp.duckcoding.com/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 1
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+```
+
+### 多分组（基于单分组数据重写）
+
+```toml
+[server]
+listen = "http://0.0.0.0:7085"
+auth_key = "change-me"
+default_group = "default"
+strategy = "weighted"
+timeout_seconds = 600
+max_failover = 2
+max_request_body_bytes = 10485760
+
+[health]
+cooldown_seconds = 30
+
+[groups.default]
+strategy = "weighted"
+max_failover = 2
+timeout_seconds = 600
+
+[groups.vip]
+strategy = "failover"
+max_failover = 3
+timeout_seconds = 180
+
+[[platforms]]
+name = "88code"
+base_url = "https://www.88code.ai/openai/v1"
+api_key = ""
+group = "default"
+weight = 2
+priority = 0
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "鸭Duckcoding"
+base_url = "https://jp.duckcoding.com/v1"
+api_key = ""
+group = "default"
+weight = 1
+priority = 0
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "鹅cubence"
+base_url = "https://api.cubence.com/v1"
+api_key = ""
+group = "vip"
+weight = 1
+priority = 1
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+
+[[platforms]]
+name = "Privnode"
+base_url = "https://privnode.com/v1"
+api_key = ""
+group = "vip"
+weight = 1
+priority = 2
+key_header = "Authorization"
+key_prefix = "Bearer "
+enabled = true
+```
+
+### 平台认证填写示例
+
+```toml
+[[platforms]]
+name = "openai"
+base_url = "https://api.openai.com"
+api_key = "sk-..."
+key_header = "Authorization"
+key_prefix = "Bearer "
+
+[[platforms]]
+name = "gemini"
+base_url = "https://generativelanguage.googleapis.com"
+api_key = "..."
+key_header = "X-Goog-Api-Key"
+key_prefix = ""
+
+[[platforms]]
+name = "claude"
+base_url = "https://api.anthropic.com"
+api_key = "sk-ant-..."
+key_header = "x-api-key"
+key_prefix = ""
+```
 

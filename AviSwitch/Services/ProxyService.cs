@@ -79,8 +79,9 @@ public sealed class ProxyService
         }
 
         var timeoutSeconds = groupConfig?.TimeoutSeconds ?? _config.Server.TimeoutSeconds;
-        var attemptLimit = Math.Min(groupConfig?.MaxFailover ?? _config.Server.MaxFailover, candidates.Count);
-        attemptLimit = Math.Max(attemptLimit, 1);
+        var failureThreshold = groupConfig?.MaxFailover ?? _config.Server.MaxFailover;
+        failureThreshold = Math.Max(failureThreshold, 1);
+        var attemptLimit = Math.Max(candidates.Count, 1);
 
         var bufferedBody = await RequestBodyBuffer.TryBufferAsync(context.Request, _config.Server.MaxRequestBodyBytes, context.RequestAborted);
 
@@ -106,7 +107,7 @@ public sealed class ProxyService
 
                 if (_health.IsRetryableStatusCode(statusCode) && attempt + 1 < attemptLimit && !context.Response.HasStarted)
                 {
-                    ReportFailure(platform, group, $"状态码 {statusCode}");
+                    ReportFailure(platform, group, $"状态码 {statusCode}", failureThreshold);
                     LogAttempt(context, platform, group, statusCode, attemptStopwatch, attempt + 1, attemptLimit, false, "可重试状态码");
                     continue;
                 }
@@ -123,7 +124,7 @@ public sealed class ProxyService
                 }
                 else
                 {
-                    ReportFailure(platform, group, $"状态码 {statusCode}");
+                    ReportFailure(platform, group, $"状态码 {statusCode}", failureThreshold);
                 }
 
                 LogAttempt(context, platform, group, statusCode, attemptStopwatch, attempt + 1, attemptLimit, success, null);
@@ -136,12 +137,12 @@ public sealed class ProxyService
             catch (OperationCanceledException) when (!context.RequestAborted.IsCancellationRequested)
             {
                 statusCode = StatusCodes.Status504GatewayTimeout;
-                ReportFailure(platform, group, "超时");
+                ReportFailure(platform, group, "超时", failureThreshold);
                 LogAttempt(context, platform, group, statusCode, attemptStopwatch, attempt + 1, attemptLimit, false, "超时");
             }
             catch (Exception ex)
             {
-                ReportFailure(platform, group, "异常");
+                ReportFailure(platform, group, "异常", failureThreshold);
                 LogAttempt(context, platform, group, statusCode, attemptStopwatch, attempt + 1, attemptLimit, false, ex.Message);
             }
 
@@ -364,10 +365,10 @@ public sealed class ProxyService
         _logger.Log(entry);
     }
 
-    private void ReportFailure(PlatformState platform, string group, string reason)
+    private void ReportFailure(PlatformState platform, string group, string reason, int failureThreshold)
     {
         var now = DateTimeOffset.UtcNow;
-        var circuit = _health.ReportFailure(platform, now);
+        var circuit = _health.ReportFailure(platform, failureThreshold, now);
         if (circuit is null)
         {
             return;

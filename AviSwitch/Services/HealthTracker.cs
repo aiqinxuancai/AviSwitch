@@ -22,10 +22,11 @@ public sealed class HealthTracker
         platform.ReportSuccess();
     }
 
-    public CircuitBreakResult? ReportFailure(PlatformState platform, DateTimeOffset now)
+    public CircuitBreakResult? ReportFailure(PlatformState platform, int failureThreshold, DateTimeOffset now)
     {
+        var threshold = Math.Max(1, failureThreshold);
         var cooldown = TimeSpan.FromSeconds(_config.CooldownSeconds);
-        return platform.ReportFailure(_config.FailureThreshold, cooldown, now);
+        return platform.ReportFailure(threshold, cooldown, now);
     }
 
     public bool IsRetryableStatusCode(int statusCode)

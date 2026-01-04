@@ -7,7 +7,7 @@ public sealed class GroupConfig
     /// </summary>
     public string? Strategy { get; set; }
     /// <summary>
-    /// 分组故障转移尝试次数覆盖。
+    /// 分组熔断阈值覆盖。
     /// </summary>
     public int? MaxFailover { get; set; }
     /// <summary>

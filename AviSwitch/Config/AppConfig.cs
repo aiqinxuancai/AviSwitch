@@ -61,11 +61,6 @@ public sealed class AppConfig
             Server.MaxRequestBodyBytes = 10 * 1024 * 1024;
         }
 
-        if (Health.FailureThreshold <= 0)
-        {
-            Health.FailureThreshold = 2;
-        }
-
         if (Health.CooldownSeconds <= 0)
         {
             Health.CooldownSeconds = 30;
