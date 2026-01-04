@@ -247,7 +247,7 @@ enabled = true
 ```toml
 [server]
 listen = "http://0.0.0.0:7085"
-auth_key = "4pGNmJAjEBM8EKh3evxcHWv2pZwig8gr"
+auth_key = ""
 default_group = "default"
 strategy = "weighted"
 timeout_seconds = 600
@@ -262,6 +262,7 @@ strategy = "failover"
 max_failover = 1
 timeout_seconds = 600
 
+# 下面是默认的CodeX分组，使用 http://127.0.0.1:7085/ 或 http://127.0.0.1:7085/default 作为CodeX的配置入口
 
 [[platforms]]
 name = "88"
