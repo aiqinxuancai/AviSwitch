@@ -54,12 +54,29 @@ services:
       - AVISWITCH_CONFIG=/app/config.toml
 ```
 
+## 配置到Codex、Claude、Gemini
+
+Codex例子，只需将接口URL指定到AviSwitch，比如http://127.0.0.1:7085/
+```
+model_provider = "aviswitch"
+model = "gpt-5.2-codex"
+model_reasoning_effort = "high"
+disable_response_storage = true
+sandbox_mode="danger-full-access"
+
+[model_providers.aviswitch]
+name = "AviSwitch"
+base_url = "http://100.100.1.7:7085/"
+wire_api = "responses"
+requires_openai_auth = true
+```
+
 ## 分组路由
 
 通过路径前缀指定分组，格式为：
 
 ```
-http://<host>/{GROUP}/v1/...
+http://<host>/{GROUP}/
 ```
 
 当 `{GROUP}` 与已配置分组名称匹配时，将使用该分组，并在转发到上游时移除该路径段。
