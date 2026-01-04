@@ -47,21 +47,21 @@ key_prefix = "Bearer "
 enabled = true
 
 [[platforms]]
-# Display name in logs.
+# 日志显示名称。
 name = "gemini-backup"
-# Upstream base URL.
+# 上游基础地址。
 base_url = "https://generativelanguage.googleapis.com"
-# Upstream API key.
+# 上游 API Key。
 api_key = "..."
-# Group name for this platform.
+# 平台所属分组。
 group = "default"
-# Weight for weighted strategy.
+# 权重（weighted 策略使用）。
 weight = 1
-# Priority for failover strategy (lower is higher priority).
+# 优先级（failover 使用，越小越优先）。
 priority = 2
-# Header used to inject API key.
+# 注入 API Key 的请求头。
 key_header = "X-Goog-Api-Key"
-# API key prefix, e.g. "Bearer ".
+# API Key 前缀（如 "Bearer "）。
 key_prefix = ""
-# Enable or disable this platform.
+# 是否启用该平台。
 enabled = true

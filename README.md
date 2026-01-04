@@ -104,57 +104,99 @@ http://<host>/{GROUP}/v1/...
 
 ```toml
 [server]
+# 监听地址。
 listen = "http://0.0.0.0:7085"
+# 外部调用鉴权 Key。
 auth_key = "change-me"
+# 默认分组名称。
 default_group = "default"
 
 [groups.default]
+# 分组策略覆盖。
 strategy = "weighted"
+# 分组熔断阈值覆盖。
 max_failover = 1
+# 分组超时覆盖（秒）。
 timeout_seconds = 600
 
 [[platforms]]
+# 日志显示名称。
 name = "88code"
+# 上游基础地址。
 base_url = "https://www.88code.ai/openai/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "default"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 0
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 
 [[platforms]]
+# 日志显示名称。
 name = "鹅cubence"
+# 上游基础地址。
 base_url = "https://api.cubence.com/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "default"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 0
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 
 [[platforms]]
+# 日志显示名称。
 name = "Privnode"
+# 上游基础地址。
 base_url = "https://privnode.com/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "default"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 1
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = false
 
 [[platforms]]
+# 日志显示名称。
 name = "鸭Duckcoding"
+# 上游基础地址。
 base_url = "https://jp.duckcoding.com/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "default"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 1
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 ```
 
@@ -162,69 +204,119 @@ enabled = true
 
 ```toml
 [server]
+# 监听地址。
 listen = "http://0.0.0.0:7085"
+# 外部调用鉴权 Key。
 auth_key = "change-me"
+# 默认分组名称。
 default_group = "default"
+# 默认负载均衡策略（weighted 或 failover）。
 strategy = "weighted"
+# 上游请求超时（秒）。
 timeout_seconds = 600
+# 触发熔断冷却的连续失败次数。
 max_failover = 2
+# 可重试请求体的最大缓冲大小（字节）。
 max_request_body_bytes = 10485760
 
 [health]
+# 基础冷却时间（秒，连续熔断按倍数增加）。
 cooldown_seconds = 30
 
 [groups.default]
+# 分组策略覆盖。
 strategy = "weighted"
+# 分组熔断阈值覆盖。
 max_failover = 2
+# 分组超时覆盖（秒）。
 timeout_seconds = 600
 
 [groups.vip]
+# 分组策略覆盖。
 strategy = "failover"
+# 分组熔断阈值覆盖。
 max_failover = 3
+# 分组超时覆盖（秒）。
 timeout_seconds = 180
 
 [[platforms]]
+# 日志显示名称。
 name = "88code"
+# 上游基础地址。
 base_url = "https://www.88code.ai/openai/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "default"
+# 权重（weighted 策略使用）。
 weight = 2
+# 优先级（failover 使用，越小越优先）。
 priority = 0
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 
 [[platforms]]
+# 日志显示名称。
 name = "鸭Duckcoding"
+# 上游基础地址。
 base_url = "https://jp.duckcoding.com/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "default"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 0
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 
 [[platforms]]
+# 日志显示名称。
 name = "鹅cubence"
+# 上游基础地址。
 base_url = "https://api.cubence.com/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "vip"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 1
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 
 [[platforms]]
+# 日志显示名称。
 name = "Privnode"
+# 上游基础地址。
 base_url = "https://privnode.com/v1"
+# 上游 API Key。
 api_key = ""
+# 平台所属分组。
 group = "vip"
+# 权重（weighted 策略使用）。
 weight = 1
+# 优先级（failover 使用，越小越优先）。
 priority = 2
+# 注入 API Key 的请求头。
 key_header = "Authorization"
+# API Key 前缀（如 "Bearer "）。
 key_prefix = "Bearer "
+# 是否启用该平台。
 enabled = true
 ```
 
@@ -232,6 +324,7 @@ enabled = true
 
 ```toml
 [[platforms]]
+# OpenAI：Authorization + Bearer 前缀
 name = "openai"
 base_url = "https://api.openai.com"
 api_key = "sk-..."
@@ -239,6 +332,7 @@ key_header = "Authorization"
 key_prefix = "Bearer "
 
 [[platforms]]
+# Gemini：X-Goog-Api-Key，无前缀
 name = "gemini"
 base_url = "https://generativelanguage.googleapis.com"
 api_key = "..."
@@ -246,6 +340,7 @@ key_header = "X-Goog-Api-Key"
 key_prefix = ""
 
 [[platforms]]
+# Claude：x-api-key，无前缀
 name = "claude"
 base_url = "https://api.anthropic.com"
 api_key = "sk-ant-..."
