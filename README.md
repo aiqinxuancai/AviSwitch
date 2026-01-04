@@ -244,6 +244,8 @@ enabled = true
 
 ### 多分组
 
+适用于CodeX和CC都用的人
+
 ```toml
 [server]
 listen = "http://0.0.0.0:7085"
