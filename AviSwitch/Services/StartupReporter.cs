@@ -17,6 +17,20 @@ public static class StartupReporter
         table.AddColumn("启用");
         table.AddColumn("上游地址");
 
+        // 先计算每个分组的最小优先级（主节点）
+        var groupMinPriority = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var platform in config.Platforms)
+        {
+            if (!groupMinPriority.ContainsKey(platform.Group))
+            {
+                groupMinPriority[platform.Group] = platform.Priority;
+            }
+            else if (platform.Priority < groupMinPriority[platform.Group])
+            {
+                groupMinPriority[platform.Group] = platform.Priority;
+            }
+        }
+
         foreach (var platform in config.Platforms)
         {
             // 获取该平台所属分组的策略
@@ -26,10 +40,19 @@ public static class StartupReporter
             // 根据策略和优先级决定颜色
             string color = GetPriorityColor(strategy, platform.Priority);
 
+            // 在 failover 模式下，为最低优先级（主节点）添加标记
+            string priorityText = platform.Priority.ToString();
+            if (strategy == "failover" &&
+                groupMinPriority.TryGetValue(platform.Group, out var minPriority) &&
+                platform.Priority == minPriority)
+            {
+                priorityText = $"{platform.Priority}[主]";
+            }
+
             table.AddRow(
                 $"[{color}]{Markup.Escape(platform.Name)}[/]",
                 $"[{color}]{Markup.Escape(platform.Group)}[/]",
-                $"[{color}]{platform.Priority}[/]",
+                $"[{color}]{Markup.Escape(priorityText)}[/]",
                 $"[{color}]{platform.Weight}[/]",
                 $"[{color}]{(platform.Enabled ? "是" : "否")}[/]",
                 $"[{color}]{Markup.Escape(platform.BaseUrl)}[/]");
