@@ -76,7 +76,7 @@ sandbox_mode="danger-full-access"
 
 [model_providers.aviswitch]
 name = "AviSwitch"
-base_url = "http://100.100.1.7:7085/"
+base_url = "http://127.0.0.1:7085/"
 wire_api = "responses"
 requires_openai_auth = true
 ```
@@ -121,7 +121,7 @@ http://<host>/{GROUP}/
 - `groups.<name>`: 分组覆盖配置（策略/熔断阈值/超时）
 - `[[platforms]]`: 上游平台列表
 
-重试说明：当请求体可重试时，失败会按负载均衡顺序依次切换到后续候选节点，直到候选耗尽。
+注：当请求体可重试时，失败会按负载均衡顺序依次切换到后续候选节点，直到候选耗尽。
 
 平台字段：
 
@@ -134,8 +134,9 @@ http://<host>/{GROUP}/
 - `key_type`: 预定义类型，支持`openai`/`claude`/`gemini`，会自动设置 `key_header`/`key_prefix`
 - `key_header`: 自定义 API Key 的请求头名称，在未设置 `key_type` 时使用
 - `key_prefix`: API Key 前缀（如 `Bearer `），在未设置 `key_type` 时使用
-- `key_type`与`key_header`/`key_prefix` 两种方式二选一即可
 - `enabled`: 是否启用
+
+注：`key_type`与`key_header`/`key_prefix` 两种方式二选一即可
 
 策略说明：
 
@@ -347,29 +348,3 @@ key_type = "claude"
 enabled = true
 
 ```
-
-### 平台认证填写示例
-
-```toml
-[[platforms]]
-# OpenAI：Authorization + Bearer 前缀
-name = "openai"
-base_url = "https://api.openai.com"
-api_key = "sk-..."
-key_type = "openai"
-
-[[platforms]]
-# Gemini：X-Goog-Api-Key，无前缀
-name = "gemini"
-base_url = "https://generativelanguage.googleapis.com"
-api_key = "..."
-key_type = "gemini"
-
-[[platforms]]
-# Claude：x-api-key，无前缀
-name = "claude"
-base_url = "https://api.anthropic.com"
-api_key = "sk-ant-..."
-key_type = "claude"
-```
-
