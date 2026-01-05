@@ -76,7 +76,7 @@ sandbox_mode="danger-full-access"
 
 [model_providers.aviswitch]
 name = "AviSwitch"
-base_url = "http://100.100.1.7:7085/"
+base_url = "http://127.0.0.1:7085/"
 wire_api = "responses"
 requires_openai_auth = true
 ```
