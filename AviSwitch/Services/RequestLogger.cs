@@ -10,7 +10,8 @@ public sealed class RequestLogger
         var statusText = entry.Success ? "成功" : "失败";
         var attemptText = entry.AttemptLimit > 1 ? $"（尝试 {entry.Attempt}/{entry.AttemptLimit}）" : string.Empty;
         var attemptSuffix = string.IsNullOrWhiteSpace(attemptText) ? string.Empty : $" {attemptText}";
-        var message = $"[grey]{entry.Timestamp:O}[/] [blue]{Markup.Escape(entry.Group)}[/] [cyan]{Markup.Escape(entry.Platform)}[/] " +
+        var timestamp = entry.Timestamp.ToLocalTime();
+        var message = $"[grey]{timestamp:O}[/] [blue]{Markup.Escape(entry.Group)}[/] [cyan]{Markup.Escape(entry.Platform)}[/] " +
                       $"{Markup.Escape(entry.Method)} {Markup.Escape(entry.PathAndQuery)} " +
                       $"[{statusColor}]{entry.StatusCode} {statusText}[/] {entry.ElapsedMilliseconds}ms{attemptSuffix}";
 
@@ -25,7 +26,8 @@ public sealed class RequestLogger
     public void LogDebug(ProxyDebugLogEntry entry)
     {
         var attemptText = entry.AttemptLimit > 1 ? $" (try {entry.Attempt}/{entry.AttemptLimit})" : string.Empty;
-        var message = $"[grey]{entry.Timestamp:O}[/] [yellow]DEBUG[/] [blue]{Markup.Escape(entry.Group)}[/] [cyan]{Markup.Escape(entry.Platform)}[/] " +
+        var timestamp = entry.Timestamp.ToLocalTime();
+        var message = $"[grey]{timestamp:O}[/] [yellow]DEBUG[/] [blue]{Markup.Escape(entry.Group)}[/] [cyan]{Markup.Escape(entry.Platform)}[/] " +
                       $"{Markup.Escape(entry.Method)} -> {Markup.Escape(entry.TargetUri)}{attemptText}";
         AnsiConsole.MarkupLine(message);
     }
@@ -34,9 +36,11 @@ public sealed class RequestLogger
     {
         var cooldownSeconds = Math.Max(0, (int)Math.Round(entry.Cooldown.TotalSeconds));
         var reason = string.IsNullOrWhiteSpace(entry.Reason) ? "未知" : entry.Reason;
-        var message = $"[grey]{entry.Timestamp:O}[/] [red]熔断[/] [blue]{Markup.Escape(entry.Group)}[/] " +
+        var timestamp = entry.Timestamp.ToLocalTime();
+        var until = entry.Until.ToLocalTime();
+        var message = $"[grey]{timestamp:O}[/] [red]熔断[/] [blue]{Markup.Escape(entry.Group)}[/] " +
                       $"[cyan]{Markup.Escape(entry.Platform)}[/] 原因: {Markup.Escape(reason)} " +
-                      $"冷却: {cooldownSeconds}s 直到: {entry.Until:O} 连续熔断: {entry.TripCount}";
+                      $"冷却: {cooldownSeconds}s 直到: {until:O} 连续熔断: {entry.TripCount}";
         AnsiConsole.MarkupLine(message);
     }
 }

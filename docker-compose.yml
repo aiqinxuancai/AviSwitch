@@ -9,3 +9,4 @@ services:
       - ./config.toml:/app/config.toml:ro
     environment:
       - AVISWITCH_CONFIG=/app/config.toml
+      - TZ=Asia/Shanghai
