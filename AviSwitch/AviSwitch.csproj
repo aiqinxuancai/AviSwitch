@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -11,7 +11,13 @@
 
   <ItemGroup>
     <PackageReference Include="Spectre.Console" Version="0.54.0" />
-    <PackageReference Include="Tomlyn" Version="0.20.0" />
+    <PackageReference Include="Tomlyn.Signed" Version="0.20.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tomlyn.SourceGeneration\Tomlyn.SourceGeneration.csproj"
+                      OutputItemType="Analyzer"
+                      ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

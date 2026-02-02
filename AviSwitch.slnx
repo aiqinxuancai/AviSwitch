@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="AviSwitch/AviSwitch.csproj" />
+  <Project Path="Tomlyn.SourceGeneration/Tomlyn.SourceGeneration.csproj" Id="4845def6-a0a3-4a35-beef-92c6ed3ecfb9" />
 </Solution>

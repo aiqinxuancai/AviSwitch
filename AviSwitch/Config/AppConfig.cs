@@ -1,23 +1,16 @@
+using Tomlyn;
 namespace AviSwitch.Config;
 
+[TomlModel]
 public sealed class AppConfig
 {
-    /// <summary>
-    /// 服务端配置。
-    /// </summary>
-    public ServerConfig Server { get; set; } = new();
-    /// <summary>
-    /// 健康检测配置。
-    /// </summary>
-    public HealthConfig Health { get; set; } = new();
-    /// <summary>
-    /// 上游平台列表。
-    /// </summary>
+    public ServerConfig? Server { get; set; }
+
+    public HealthConfig? Health { get; set; }
+
+    public Dictionary<string, GroupConfig> Groups { get; set; } = new();
+
     public List<PlatformConfig> Platforms { get; set; } = new();
-    /// <summary>
-    /// 分组覆盖配置，键为分组名。
-    /// </summary>
-    public Dictionary<string, GroupConfig> Groups { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 
     public void ApplyDefaultsAndValidate()
     {
@@ -108,18 +101,7 @@ public sealed class AppConfig
                 platform.KeyType = normalizedKeyType;
             }
 
-            if (!hasKeyType && hasApiKey)
-            {
-                if (string.IsNullOrWhiteSpace(platform.KeyHeader))
-                {
-                    platform.KeyHeader = "Authorization";
-                }
-
-                if (platform.KeyPrefix is null)
-                {
-                    platform.KeyPrefix = "Bearer ";
-                }
-            }
+            
 
             platformIndex++;
         }
@@ -133,4 +115,64 @@ public sealed class AppConfig
 
         Groups = normalizedGroups;
     }
+}
+
+
+public sealed class ServerConfig
+{
+    public string Listen { get; set; } = string.Empty;
+
+    public string AuthKey { get; set; } = string.Empty;
+
+    public string DefaultGroup { get; set; } = string.Empty;
+
+    public string Strategy { get; set; } = string.Empty;
+
+    public int TimeoutSeconds { get; set; }
+
+    public int MaxFailover { get; set; }
+
+    public int MaxRequestBodyBytes { get; set; }
+
+    public bool DebugLog { get; set; }
+    
+}
+
+public sealed class HealthConfig
+{
+    public int CooldownSeconds { get; set; }
+}
+
+public sealed class GroupConfig
+{
+    public string Strategy { get; set; } = string.Empty;
+
+    public int MaxFailover { get; set; }
+
+    public int TimeoutSeconds { get; set; }
+}
+
+public sealed class PlatformConfig
+{
+    public string Name { get; set; } = string.Empty;
+
+    public string BaseUrl { get; set; } = string.Empty;
+
+    public string ApiKey { get; set; } = string.Empty;
+
+    public string Group { get; set; } = string.Empty;
+
+    public int Weight { get; set; }
+
+    public int Priority { get; set; }
+
+    public string KeyType { get; set; } = string.Empty;
+
+    public bool Enabled { get; set; }
+
+    public string KeyHeader { get; set; } = string.Empty;
+
+    public string KeyPrefix { get; set; } = string.Empty;
+    
+
 }

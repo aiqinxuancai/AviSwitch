@@ -32,8 +32,19 @@ public static class ConfigLoader
         }
 
         var content = File.ReadAllText(path);
-        var config = Toml.ToModel<AppConfig>(content);
-        config.ApplyDefaultsAndValidate();
-        return config;
+
+        var options = new TomlModelOptions();
+        if (!Toml.TryToModel<AppConfig>(content, out var model, out var diagnostics, options: options))
+        {
+            throw new Exception();
+        } 
+        else
+        {
+            model.ApplyDefaultsAndValidate();
+            return model;
+        }
+
+        //var config = Toml.ToModel<AppConfig>(content);
+
     }
 }
